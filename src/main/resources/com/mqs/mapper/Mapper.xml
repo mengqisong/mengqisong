@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<!-- namespace 工作空间
+	 名称目前可以随便起，没有约束
+ -->
+<mapper namespace="com.mqs.mapper.DyDao">
+
+	<select id="Dylist" resultType="dy" parameterType="map">
+		select 
+		d.did did,d.dname dname,d.djs djs,d.dename dename,GROUP_CONCAT(t.tname) tname,GROUP_CONCAT(t.tid) tid,d.time time 
+		from 
+		dianying d,type t,dtype dt 
+		where 
+		d.did=dt.did and t.tid=dt.tid 
+		<if test="dname!=null and dname!=''">
+			and dname like concat ("%",#{dname},"%")
+		</if>
+		
+		GROUP BY d.did
+	</select>
+	
+	<delete id="deleteAll" parameterType="string">
+		delete from dtype where did in (#{_parameter})
+	</delete>
+	
+	<select id="listType" resultType="type">
+		select * from type
+	</select>
+	
+	<insert id="addDy" parameterType="dy">
+		insert into dianying (dname,djs,dename,time) values (#{dname},#{djs},#{dename},#{time})
+		<!-- <selectKey order="AFTER" keyProperty="did" resultType="int">
+			select insert_last_id()as did
+		</selectKey> -->
+	</insert>
+	
+	<insert id="addDtype" parameterType="map">
+		insert into dtype (did,tid) values (#{did},#{tid})
+	</insert>
+	
+	<select id="fingById" parameterType="int" resultType="dy">
+		select 
+		d.did did,d.dname dname,d.djs djs,d.dename dename,GROUP_CONCAT(t.tname) tname,GROUP_CONCAT(t.tid) tid,d.time time 
+		from 
+		dianying d,type t,dtype dt 
+		where 
+		d.did=dt.did and t.tid=dt.tid 
+		and d.did=#{0}
+	</select>
+	
+	<update id="updateDy" parameterType="dy">
+		update dianying set dname=#{dname},djs=#{djs},dename=#{dename},time=#{time} where did=#{did}
+	</update>
+</mapper>
